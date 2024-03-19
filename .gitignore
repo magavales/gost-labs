@@ -14,6 +14,16 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# IDEA files
+*.idea
+.idea/
+Kuznechik/.idea/
+
+# OS files
+.DS_Store
+.DS_Store?
+.DS_Store/
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
