@@ -3,6 +3,8 @@ package main
 import (
 	"Kuznechik-CTR-ACPKM-256/pkg"
 	"fmt"
+	"log"
+	"os"
 )
 
 func main() {
@@ -20,9 +22,29 @@ func main() {
 			0xAA, 0xBB, 0xCC, 0xDD,
 		}
 	)
+
+	channel := pkg.NewChannel()
+
+	file, err := os.Open("gost.exe")
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+	channel.File <- file
+	channel.Hash <- nil
+	go pkg.Validation(channel)
+
 	fmt.Printf("Plain: %v\n", plainText)
 
-	c := pkg.NewCipher(key[:])
+	cipherMode := pkg.NewCtrAcpkm()
+	ciphertext, mac := cipherMode.Encrypt(plainText[:], key[:])
+	fmt.Printf("Encrypt by CTR-ACPKM: %v\n", ciphertext)
+	fmt.Printf("MAC(HMAC-SHA-256) for text: %v\n", mac)
+
+	text := cipherMode.Decrypt(ciphertext[:], key[:], mac)
+	fmt.Printf("Decrypt by CTR-ACPKM: %v\n", text)
+	fmt.Printf("Plain == Decrypt: %t\n", plainText == text)
+
+	/*c := pkg.NewCipher(key[:])
 
 	encrypted := c.Encrypt(plainText[:])
 	fmt.Printf("Encrypt: %v\n", *encrypted)
@@ -30,5 +52,5 @@ func main() {
 	decrypt := c.Decrypt(encrypted[:])
 	fmt.Printf("Decrypt: %v\n", *decrypt)
 
-	fmt.Printf("Plain == Decrypt: %t", plainText == *decrypt)
+	fmt.Printf("Plain == Decrypt: %t", plainText == *decrypt)*/
 }
