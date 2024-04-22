@@ -15,8 +15,13 @@ func Validation(channel *Channel) {
 	}
 
 	hash := h.Sum(nil)
+	log.Printf("%s", hash)
 
-	if expectedHash == nil || string(expectedHash) == string(hash) {
+	if expectedHash == nil {
+		channel.Hash <- hash
+		log.Println("Program gets the hash in the buffer.")
+	}
+	if string(expectedHash) == string(hash) {
 		channel.Hash <- hash
 		log.Println("File is correct.")
 	} else {

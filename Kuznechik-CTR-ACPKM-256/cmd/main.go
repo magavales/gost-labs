@@ -22,16 +22,19 @@ func main() {
 			0xAA, 0xBB, 0xCC, 0xDD,
 		}
 	)
-
-	channel := pkg.NewChannel()
-
 	file, err := os.Open("gost.exe")
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
+
+	channel := pkg.NewChannel()
+
+	go pkg.Validation(channel)
 	channel.File <- file
 	channel.Hash <- nil
-	go pkg.Validation(channel)
+
+	temp := <-channel.Hash
+	log.Println("The validation function finished!")
 
 	fmt.Printf("Plain: %v\n", plainText)
 
@@ -39,6 +42,13 @@ func main() {
 	ciphertext, mac := cipherMode.Encrypt(plainText[:], key[:])
 	fmt.Printf("Encrypt by CTR-ACPKM: %v\n", ciphertext)
 	fmt.Printf("MAC(HMAC-SHA-256) for text: %v\n", mac)
+
+	go pkg.Validation(channel)
+	channel.File <- file
+	channel.Hash <- temp
+
+	temp = <-channel.Hash
+	log.Println("The validation function finished!")
 
 	text := cipherMode.Decrypt(ciphertext[:], key[:], mac)
 	fmt.Printf("Decrypt by CTR-ACPKM: %v\n", text)
@@ -53,4 +63,8 @@ func main() {
 	fmt.Printf("Decrypt: %v\n", *decrypt)
 
 	fmt.Printf("Plain == Decrypt: %t", plainText == *decrypt)*/
+
+	_ = file.Close()
+	close(channel.File)
+	close(channel.Hash)
 }
