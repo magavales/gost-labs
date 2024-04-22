@@ -20,11 +20,12 @@ func Validation(channel *Channel) {
 	if expectedHash == nil {
 		channel.Hash <- hash
 		log.Println("Program gets the hash in the buffer.")
-	}
-	if string(expectedHash) == string(hash) {
-		channel.Hash <- hash
-		log.Println("File is correct.")
 	} else {
-		log.Fatalf("The integrity of the file has been violated!")
+		if string(expectedHash) == string(hash) {
+			channel.Hash <- hash
+			log.Println("File is correct.")
+		} else {
+			log.Fatalf("The integrity of the file has been violated!")
+		}
 	}
 }

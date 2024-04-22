@@ -8,11 +8,14 @@ import (
 )
 
 type CtrAcpkm struct {
-	InitialVector [BlockSize]byte
+	Gamma []byte
 }
 
-func NewCtrAcpkm() *CtrAcpkm {
-	var iv [BlockSize]byte
+func NewCtrAcpkm(key []byte) *CtrAcpkm {
+	var (
+		iv    [BlockSize]byte
+		gamma []byte
+	)
 
 	_, err := rand.Read(iv[:])
 	if err != nil {
@@ -20,19 +23,18 @@ func NewCtrAcpkm() *CtrAcpkm {
 		return nil
 	}
 
-	return &CtrAcpkm{iv}
+	gamma = initGamma(iv[:], key)
+
+	return &CtrAcpkm{gamma}
 }
 
 func (mode *CtrAcpkm) Encrypt(plaintext, key []byte) ([BlockSize]byte, []byte) {
 	var (
-		gamma      []byte
 		ciphertext [BlockSize]byte
 		mac        []byte
 	)
 
-	gamma = initGamma(mode.InitialVector[:], key)
-
-	X(ciphertext[:], plaintext, gamma)
+	X(ciphertext[:], plaintext, mode.Gamma)
 	mac = createVerificationCode(ciphertext[:], key)
 
 	return ciphertext, mac
@@ -40,7 +42,6 @@ func (mode *CtrAcpkm) Encrypt(plaintext, key []byte) ([BlockSize]byte, []byte) {
 
 func (mode *CtrAcpkm) Decrypt(ciphertext, key, mac []byte) [BlockSize]byte {
 	var (
-		gamma       []byte
 		plaintext   [BlockSize]byte
 		expectedMac []byte
 	)
@@ -50,9 +51,7 @@ func (mode *CtrAcpkm) Decrypt(ciphertext, key, mac []byte) [BlockSize]byte {
 		log.Fatalf("Expected MAC isn't equal to received MAC")
 	}
 
-	gamma = initGamma(mode.InitialVector[:], key)
-
-	X(plaintext[:], ciphertext, gamma)
+	X(plaintext[:], ciphertext, mode.Gamma)
 
 	return plaintext
 }

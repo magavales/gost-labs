@@ -38,12 +38,11 @@ func main() {
 
 	fmt.Printf("Plain: %v\n", plainText)
 
-	cipherMode := pkg.NewCtrAcpkm()
+	cipherMode := pkg.NewCtrAcpkm(key[:])
 	ciphertext, mac := cipherMode.Encrypt(plainText[:], key[:])
 	fmt.Printf("Encrypt by CTR-ACPKM: %v\n", ciphertext)
 	fmt.Printf("MAC(HMAC-SHA-256) for text: %v\n", mac)
 
-	go pkg.Validation(channel)
 	channel.File <- file
 	channel.Hash <- temp
 

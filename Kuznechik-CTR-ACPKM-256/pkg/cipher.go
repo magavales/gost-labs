@@ -1,5 +1,11 @@
 package pkg
 
+import (
+	"log"
+	"runtime"
+	"runtime/debug"
+)
+
 const (
 	BlockSize       = 16 // bytes
 	KeySize         = 32 // bytes
@@ -173,6 +179,7 @@ func (c *Cipher) Encrypt(src []byte) *[BlockSize]byte {
 	result := new([BlockSize]byte)
 	block := new([BlockSize]byte)
 	copy(block[:], src)
+	src = nil
 	for i := 0; i < Rounds; i++ {
 		X(block[:], block[:], c.keySet[i][:])
 		S(block)
@@ -181,17 +188,23 @@ func (c *Cipher) Encrypt(src []byte) *[BlockSize]byte {
 	X(block[:], block[:], c.keySet[9][:])
 	copy(result[:], block[:])
 
+	c.clear()
+	block = nil
+	runtime.GC()
+	debug.FreeOSMemory()
+
 	return result
 }
 
 func (c *Cipher) Decrypt(src []byte) *[BlockSize]byte {
 	if len(src) != BlockSize {
-		panic("invalid block size, expected block with 16 bytes")
+		log.Fatalln("invalid block size, expected block with 16 bytes")
 	}
 
 	result := new([BlockSize]byte)
 	block := new([BlockSize]byte)
 	copy(block[:], src)
+	src = nil
 	for i := Rounds; i > 0; i-- {
 		X(block[:], block[:], c.keySet[i][:])
 		LInverse(block)
@@ -199,5 +212,18 @@ func (c *Cipher) Decrypt(src []byte) *[BlockSize]byte {
 	}
 	X(result[:], block[:], c.keySet[0][:])
 
+	c.clear()
+	block = nil
+	runtime.GC()
+	debug.FreeOSMemory()
+
 	return result
+}
+
+func (c *Cipher) clear() {
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 16; j++ {
+			c.keySet[i][j] = 0
+		}
+	}
 }
