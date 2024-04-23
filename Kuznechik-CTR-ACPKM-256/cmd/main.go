@@ -2,12 +2,13 @@ package main
 
 import (
 	"Kuznechik-CTR-ACPKM-256/pkg"
-	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
+	startTime := time.Now()
 	var (
 		key = [32]byte{
 			0x80, 0x94, 0xA8, 0xBC, 0xC0, 0xD4, 0xE8, 0xFC,
@@ -22,36 +23,45 @@ func main() {
 			0xAA, 0xBB, 0xCC, 0xDD,
 		}
 	)
-	file, err := os.Open("gost.exe")
-	if err != nil {
-		log.Fatalf("%s", err)
+	// Password = "Pa$$w0rd"
+	if len(os.Args) == 2 {
+		if os.Args[1] != "97c94ebe5d767a353b77f3c0ce2d429741f2e8c99473c3c150e2faa3d14c9da6" {
+			log.Fatalln("Password isn't corrected!")
+		} else {
+			log.Println("Password is corrected!")
+		}
+	} else {
+		log.Fatalln("Password didn't send to program!")
 	}
+
+	startAlgorithmTime := time.Now()
 
 	channel := pkg.NewChannel()
 
 	go pkg.Validation(channel)
-	channel.File <- file
+	//channel.File <- file
 	channel.Hash <- nil
 
 	temp := <-channel.Hash
 	log.Println("The validation function finished!")
 
-	fmt.Printf("Plain: %v\n", plainText)
+	log.Printf("Plain: %v\n", plainText)
 
 	cipherMode := pkg.NewCtrAcpkm(key[:])
 	ciphertext, mac := cipherMode.Encrypt(plainText[:], key[:])
-	fmt.Printf("Encrypt by CTR-ACPKM: %v\n", ciphertext)
-	fmt.Printf("MAC(HMAC-SHA-256) for text: %v\n", mac)
+	log.Printf("Encrypt by CTR-ACPKM: %v\n", ciphertext)
+	log.Printf("MAC(HMAC-SHA-256) for text: %v\n", mac)
 
-	channel.File <- file
+	go pkg.Validation(channel)
+	//channel.File <- file
 	channel.Hash <- temp
 
 	temp = <-channel.Hash
 	log.Println("The validation function finished!")
 
 	text := cipherMode.Decrypt(ciphertext[:], key[:], mac)
-	fmt.Printf("Decrypt by CTR-ACPKM: %v\n", text)
-	fmt.Printf("Plain == Decrypt: %t\n", plainText == text)
+	log.Printf("Decrypt by CTR-ACPKM: %v\n", text)
+	log.Printf("Plain == Decrypt: %t\n", plainText == text)
 
 	/*c := pkg.NewCipher(key[:])
 
@@ -63,7 +73,12 @@ func main() {
 
 	fmt.Printf("Plain == Decrypt: %t", plainText == *decrypt)*/
 
-	_ = file.Close()
+	totalTime := time.Now().Sub(startTime)
+	totalAlgorithmTime := time.Now().Sub(startAlgorithmTime)
+
+	log.Printf("The total working time of the program: %f\n", totalTime.Seconds())
+	log.Printf("The total working time of the algotihm CTR-ACPKM: %f\n", totalAlgorithmTime.Seconds())
+
 	close(channel.File)
 	close(channel.Hash)
 }

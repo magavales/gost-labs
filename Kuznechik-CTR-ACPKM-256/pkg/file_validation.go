@@ -4,18 +4,26 @@ import (
 	"crypto/md5"
 	"io"
 	"log"
+	"os"
 )
 
 func Validation(channel *Channel) {
-	h := md5.New()
-	file := <-channel.File
 	expectedHash := <-channel.Hash
+
+	file, err := os.Open("gost.exe")
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+	defer file.Close()
+
+	h := md5.New()
 	if _, err := io.Copy(h, file); err != nil {
 		log.Fatal(err)
 	}
 
 	hash := h.Sum(nil)
 	log.Printf("%s", hash)
+	h = nil
 
 	if expectedHash == nil {
 		channel.Hash <- hash
