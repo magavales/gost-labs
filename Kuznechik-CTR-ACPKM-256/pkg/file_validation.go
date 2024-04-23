@@ -8,9 +8,10 @@ import (
 )
 
 func Validation(channel *Channel) {
+	path := <-channel.Path
 	expectedHash := <-channel.Hash
 
-	file, err := os.Open("gost.exe")
+	file, err := os.Open(path)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}

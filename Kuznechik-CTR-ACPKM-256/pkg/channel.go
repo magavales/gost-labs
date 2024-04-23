@@ -1,15 +1,13 @@
 package pkg
 
-import "os"
-
 type Channel struct {
-	File chan *os.File
+	Path chan string
 	Hash chan []byte
 }
 
 func NewChannel() *Channel {
 	return &Channel{
-		File: make(chan *os.File),
+		Path: make(chan string),
 		Hash: make(chan []byte),
 	}
 }

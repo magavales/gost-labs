@@ -25,6 +25,7 @@ func main() {
 	)
 	// Password = "Pa$$w0rd"
 	if len(os.Args) == 2 {
+		log.Printf("%s\n", os.Args[0])
 		if os.Args[1] != "97c94ebe5d767a353b77f3c0ce2d429741f2e8c99473c3c150e2faa3d14c9da6" {
 			log.Fatalln("Password isn't corrected!")
 		} else {
@@ -39,7 +40,7 @@ func main() {
 	channel := pkg.NewChannel()
 
 	go pkg.Validation(channel)
-	//channel.File <- file
+	channel.Path <- os.Args[0]
 	channel.Hash <- nil
 
 	temp := <-channel.Hash
@@ -53,7 +54,7 @@ func main() {
 	log.Printf("MAC(HMAC-SHA-256) for text: %v\n", mac)
 
 	go pkg.Validation(channel)
-	//channel.File <- file
+	channel.Path <- os.Args[0]
 	channel.Hash <- temp
 
 	temp = <-channel.Hash
@@ -79,6 +80,6 @@ func main() {
 	log.Printf("The total working time of the program: %f\n", totalTime.Seconds())
 	log.Printf("The total working time of the algotihm CTR-ACPKM: %f\n", totalAlgorithmTime.Seconds())
 
-	close(channel.File)
+	close(channel.Path)
 	close(channel.Hash)
 }
