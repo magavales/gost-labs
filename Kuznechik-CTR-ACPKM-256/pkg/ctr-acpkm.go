@@ -10,19 +10,23 @@ type CtrAcpkm struct {
 	Gamma []byte
 }
 
-func NewCtrAcpkm(key []byte) *CtrAcpkm {
+func NewCtrAcpkm(vector, key []byte) *CtrAcpkm {
 	var (
 		iv    [BlockSize]byte
 		gamma []byte
 	)
 
-	_, err := rand.Read(iv[:])
-	if err != nil {
-		log.Fatalf("%s", err)
-		return nil
-	}
+	if vector == nil {
+		_, err := rand.Read(iv[:])
+		if err != nil {
+			log.Fatalf("%s", err)
+			return nil
+		}
 
-	gamma = initGamma(iv[:], key)
+		gamma = initGamma(iv[:], key)
+	} else {
+		gamma = initGamma(vector, key)
+	}
 
 	return &CtrAcpkm{gamma}
 }
