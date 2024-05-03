@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"crypto/md5"
+	"Kuznechik-CTR-ACPKM-256/pkg/stribog"
 	"io"
 	"log"
 	"os"
@@ -17,14 +17,14 @@ func Validation(channel *Channel) {
 	}
 	defer file.Close()
 
-	h := md5.New()
+	h := stribog.NewHash()
 	if _, err := io.Copy(h, file); err != nil {
 		log.Fatal(err)
 	}
 
 	hash := h.Sum(nil)
 	log.Printf("%s", hash)
-	h = nil
+	h.Reset()
 
 	if expectedHash == nil {
 		channel.Hash <- hash
