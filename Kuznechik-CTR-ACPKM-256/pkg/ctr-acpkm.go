@@ -1,9 +1,8 @@
 package pkg
 
 import (
-	"crypto/hmac"
+	"Kuznechik-CTR-ACPKM-256/pkg/stribog"
 	"crypto/rand"
-	"crypto/sha256"
 	"log"
 )
 
@@ -56,12 +55,17 @@ func (mode *CtrAcpkm) Decrypt(ciphertext, key, mac []byte) [BlockSize]byte {
 	return plaintext
 }
 
+func (mode *CtrAcpkm) Clear() {
+	mode.Gamma = nil
+}
+
 func initGamma(initialVector, key []byte) []byte {
 	var (
 		gamma []byte
 	)
 
 	cipher := NewCipher(key[:])
+	defer cipher.Clear()
 	encoded := cipher.Encrypt(initialVector[:])
 
 	gamma = append(gamma, encoded[:]...)
@@ -70,11 +74,12 @@ func initGamma(initialVector, key []byte) []byte {
 }
 
 func createVerificationCode(ciphertext, key []byte) []byte {
-	mac := hmac.New(sha256.New, key)
-	mac.Write(ciphertext)
-	ciphertextMac := mac.Sum(nil)
+	hash := stribog.NewHash()
+	hash.Write(ciphertext)
+	mac := hash.Sum(nil)
+	hash.Reset()
 
-	return ciphertextMac
+	return mac
 }
 
 func verifyVerificationCode(expectedMac, mac []byte) bool {

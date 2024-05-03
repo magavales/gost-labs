@@ -2,8 +2,6 @@ package pkg
 
 import (
 	"log"
-	"runtime"
-	"runtime/debug"
 )
 
 const (
@@ -188,10 +186,7 @@ func (c *Cipher) Encrypt(src []byte) *[BlockSize]byte {
 	X(block[:], block[:], c.keySet[9][:])
 	copy(result[:], block[:])
 
-	c.clear()
 	block = nil
-	runtime.GC()
-	debug.FreeOSMemory()
 
 	return result
 }
@@ -212,15 +207,12 @@ func (c *Cipher) Decrypt(src []byte) *[BlockSize]byte {
 	}
 	X(result[:], block[:], c.keySet[0][:])
 
-	c.clear()
 	block = nil
-	runtime.GC()
-	debug.FreeOSMemory()
 
 	return result
 }
 
-func (c *Cipher) clear() {
+func (c *Cipher) Clear() {
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 16; j++ {
 			c.keySet[i][j] = 0
