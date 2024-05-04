@@ -42,8 +42,6 @@ func main() {
 	temp := <-channel.Hash
 	log.Println("The validation function finished!")
 
-	startAlgorithmTime := time.Now()
-
 	kdf := pkg.NewKDF(key, T, P, U, A)
 	defer kdf.Clear()
 	clearData(&key)
@@ -52,8 +50,6 @@ func main() {
 	clearData(&U)
 	clearData(&A)
 	result := kdf.Generate()
-
-	totalAlgorithmTime := time.Now().Sub(startAlgorithmTime)
 
 	go pkg.Validation(channel)
 	channel.Path <- os.Args[0]
@@ -68,7 +64,6 @@ func main() {
 
 	log.Printf("Result: %s", string(result))
 	log.Printf("The total working time of the program: %f\n", totalTime.Seconds())
-	log.Printf("The total working time of the algotihm CTR-ACPKM: %d\n", totalAlgorithmTime.Nanoseconds())
 
 	close(channel.Path)
 	close(channel.Hash)
