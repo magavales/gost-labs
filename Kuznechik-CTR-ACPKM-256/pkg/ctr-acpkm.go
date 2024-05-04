@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"Kuznechik-CTR-ACPKM-256/pkg/stribog"
+	"Kuznechik-CTR-ACPKM-256/pkg/streebog"
 	"crypto/rand"
 	"log"
 )
@@ -78,7 +78,7 @@ func initGamma(initialVector, key []byte) []byte {
 }
 
 func createVerificationCode(ciphertext, key []byte) []byte {
-	hash := stribog.NewHash()
+	hash := streebog.NewHash()
 	hash.Write(ciphertext)
 	mac := hash.Sum(nil)
 	hash.Reset()

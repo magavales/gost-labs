@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"Kuznechik-CTR-ACPKM-256/pkg/stribog"
+	"Kuznechik-CTR-ACPKM-256/pkg/streebog"
 	"io"
 	"log"
 	"os"
@@ -17,7 +17,7 @@ func Validation(channel *Channel) {
 	}
 	defer file.Close()
 
-	h := stribog.NewHash()
+	h := streebog.NewHash()
 	if _, err := io.Copy(h, file); err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package stribog
+package streebog
 
 import (
 	"encoding/binary"
