@@ -9,6 +9,7 @@ import (
 func Create1MbFile(rand *XoroShiroPlus256) {
 	iters := 131072 // 8 byte * 131072 = 1mb
 	createFile(rand, iters, "xorshift_1mb.bin")
+	CreateNValuesInBinaryFormatFile(rand, iters)
 }
 
 func Create100MbFile(rand *XoroShiroPlus256) {
@@ -36,10 +37,10 @@ func CreateNValuesInBinaryFormatFile(rand *XoroShiroPlus256, n int) {
 }
 
 func createBinaryFormatFile(rand *XoroShiroPlus256, iters int, filename string) {
-	err := os.Truncate(filename, 0)
+	/*err := os.Truncate(filename, 0)
 	if err != nil {
 		panic("failed to clear existed file")
-	}
+	}*/
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic("failed to create file: " + err.Error())
@@ -64,10 +65,10 @@ func createBinaryFormatFile(rand *XoroShiroPlus256, iters int, filename string) 
 }
 
 func createFile(rand *XoroShiroPlus256, iters int, filename string) {
-	err := os.Truncate(filename, 0)
+	/*err := os.Truncate(filename, 0)
 	if err != nil {
 		panic("failed to clear existed file")
-	}
+	}*/
 
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
