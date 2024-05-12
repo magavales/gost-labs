@@ -60,6 +60,7 @@ func (c *Crisp) Encode(plainText []byte) []Message {
 func (c *Crisp) EncodeNextBlock(plainText []byte) Message {
 	var (
 		seqNum [4]byte
+		seed   [8]byte
 	)
 
 	if len(plainText) != BlockSize {
@@ -67,7 +68,9 @@ func (c *Crisp) EncodeNextBlock(plainText []byte) Message {
 	}
 	e := c.Encoder
 	binary.BigEndian.PutUint32(seqNum[:], e.seqNum)
+	binary.BigEndian.PutUint64(seed[:], e.random.Next())
 
+	e.kdf.Key = seed[:]
 	key := e.kdf.GenerateKey()
 
 	block := plainText[:]
