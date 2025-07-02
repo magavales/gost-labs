@@ -1,2 +1,2 @@
 # Kuznechik
-https://medium.com/goturkiye/you-are-misusing-interfaces-in-go-architecture-smells-wrong-abstractions-da0270192808
+https://drive.google.com/file/d/12T_19VLbj2k4fkKVx6iLpug5wSd0okH_/view?usp=sharing
